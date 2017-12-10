@@ -1,0 +1,25 @@
+{
+  "name": "api_design",
+  "version": "0.0.1",
+  "private": true,
+  "description": "New Swagger API Project",
+  "keywords": [],
+  "author": "",
+  "license": "",
+  "main": "app.js",
+  "dependencies": {
+    "express": "^4.12.3",
+    "swagger-express-mw": "^0.1.0"
+  },
+  "devDependencies": {
+    "ng-swagger-gen": "^0.9.2",
+    "should": "^7.1.0",
+    "supertest": "^1.0.0"
+  },
+  "scripts": {
+    "start": "node app.js",
+    "test": "swagger project test",
+    "build": "swagger-codegen generate -i api/swagger/swagger.yaml -l swagger -o build/ && ./node_modules/.bin/ng-swagger-gen -i build/swagger.json -o build/",
+    "lumen": "swagger-codegen generate -i ../api_design/api/swagger/swagger.yaml -l lumen -o ../web_services/lib"
+  }
+}
