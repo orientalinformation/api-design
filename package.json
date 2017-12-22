@@ -19,7 +19,7 @@
   "scripts": {
     "start": "node app.js",
     "test": "swagger project test",
-    "build": "swagger-codegen generate -i api/swagger/swagger.yaml -l swagger -o build/ && ./node_modules/.bin/ng-swagger-gen -i build/swagger.json -o build/",
-    "lumen": "swagger-codegen generate -i ../api_design/api/swagger/swagger.yaml -l lumen -o ../web_services/lib"
+    "build": "swagger-codegen generate -i api/swagger/swagger.yaml -l swagger -o build/ && ./node_modules/.bin/ng-swagger-gen -i build/swagger.json -o ../cryosoft-ui/src/app/api/",
+    "lumen": "swagger-codegen generate -i ../api_design/api/swagger/swagger.yaml -l lumen -o ../web_services"
   }
 }

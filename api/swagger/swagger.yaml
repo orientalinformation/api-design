@@ -52,6 +52,8 @@ paths:
       responses:
         "200":
           description: login success
+          schema:
+            $ref: "#/definitions/ViewLogin"
         "403":
           description: login failed (may be incorrect password or username, user got banned)
   /logout:
@@ -61,6 +63,38 @@ paths:
       responses:
         "200":
           description: logout success
+  /translations/{lang}/components:
+    get:
+      operationId: getComponentTranslations
+      security: [] # authentication not require for getting translations
+      parameters:
+        - name: lang
+          in: path
+          required: true
+          type: string
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/Translation"
+  /translations/{lang}/packings:
+    get:
+      operationId: getPackingTranslations
+      security: [] # authentication not require for getting translations
+      parameters:
+        - name: lang
+          in: path
+          required: true
+          type: string
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/Translation"
   /studies:
     get:
       operationId: findStudies
@@ -129,6 +163,84 @@ paths:
       responses:
         "200":
           description: OK
+  /studies/{id}/product:
+    post:
+      operationId: updateProduct
+      description: update a product
+      parameters:
+      - name: id
+        in: path
+        description: study ID
+        required: true
+        type: integer
+      - name: name
+        in: formData
+        description: product name
+        required: false
+        type: string
+      - name: dim1
+        description: dim1
+        in: formData
+        required: false
+        type: number
+      - name: dim2
+        description: dim2
+        in: formData
+        required: false
+        type: number
+      - name: dim3
+        description: dim3
+        in: formData
+        required: false
+        type: number
+      responses:
+        "200":
+          description: ok
+        "422":
+          description: missing data
+    put:
+      operationId: newProduct
+      parameters:
+      - name: id
+        in: path
+        description: study ID
+        required: true
+        type: integer
+      - name: name
+        in: query
+        description: product name
+        required: true
+        type: string
+      responses:
+        "200":
+          description: ok
+  /studies/{id}/refreshMesh:
+    get:
+      operationId: refreshMesh
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: refresh mesh of study
+          type: integer
+      responses:
+        "200":
+          description: OK
+  /studies/{id}/equipments:
+    get:
+      operationId: getStudyEquipments
+      parameters:
+      - name: id
+        in: path
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/StudyEquipment"
   /studies/{id}/clone:
     put:
       operationId: saveStudyAs
@@ -196,6 +308,21 @@ paths:
           description: todo
           schema:
             $ref:  "#/definitions/Equipment"
+  /studyEquipment/{id}:
+    get:
+      description: get study equipment by id
+      parameters:
+      - name: id
+        in: path
+        description: StudyEquipment ID
+        required: true
+        type: integer
+      operationId: getStudyEquipmentById
+      responses:
+        "200":
+          description: todo
+          schema:
+            $ref:  "#/definitions/StudyEquipment"
   /productions/{id}:
     get:
       operationId: getProductionById
@@ -211,26 +338,541 @@ paths:
           description: todo
           schema:
             $ref:  "#/definitions/Production"
-  /components:
+  /products/{id}:
     get:
-      description: todo
+      operationId: getProductById
+      description: get product by id
+      parameters:
+      - name: id
+        in: path
+        description: Product ID
+        required: true
+        type: integer
       responses:
         "200":
           description: todo
+          schema:
+            $ref:  "#/definitions/Product"
+  /products/{id}/view:
+    get:
+      operationId: getProductViewModel
+      description: get product view model
+      parameters:
+      - name: id
+        in: path
+        description: Product ID
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: todo
+          schema:
+            $ref:  "#/definitions/ViewProduct"
+  /products/{id}/elements:
+    get:
+      operationId: getElementsByProductId
+      description: get elements of a products
+      parameters:
+      - name: id
+        in: path
+        description: Product ID
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: todo
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/ProductElmt"
+    put:
+      operationId: appendElementsToProduct
+      description: append elements to product
+      parameters:
+      - name: id
+        in: path
+        description: Product ID
+        required: true
+        type: integer
+      - name: componentId
+        required: true
+        in: query
+        type: integer
+      - name: shapeId
+        required: true
+        in: query
+        type: integer
+      - name: dim1
+        required: false
+        in: query
+        type: number
+      - name: dim3
+        required: false
+        in: query
+        type: number
+      responses:
+        "200":
+          description: todo
+        "500":
+          description: server error
+    delete:
+      operationId: removeProductElement
+      description: remove a product element
+      parameters:
+      - name: id
+        in: path
+        description: Product ID
+        required: true
+        type: integer
+      - name: elementId
+        required: true
+        in: query
+        type: integer
+      responses:
+        "200":
+          description: todo
+        "500":
+          description: server error
+  /productElmts/{id}/moveup:
+    get:
+      operationId: productElementMoveUp
+      description: move a product element up
+      parameters:
+      - name: id
+        in: path
+        description: element ID
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: todo
+        "500":
+          description: server error
+  /productElmts/{id}/movedown:
+    get:
+      operationId: productElementMoveDown
+      description: move a product element down
+      parameters:
+      - name: id
+        in: path
+        description: element ID
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: todo
+        "500":
+          description: server error
+  /components:
+    get:
+      operationId: findComponents
+      description: find available components by filter
+      parameters:
+      - name: compfamily
+        in: query
+        type: integer
+      - name: subfamily
+        in: query
+        type: integer
+      - name: waterpercent
+        in: query
+        type: integer
+      responses:
+        "200":
+          description: todo
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/Component"
   /users:
     get:
       description: todo
       responses:
         "200":
           description: todo
+  /shapes:
+    get:
+      operationId: getShapes
+      description: get available shapes
+      responses:
+        "200":
+          description: todo
+          schema:
+            type: array
+            items:
+              $ref:  "#/definitions/Shape"
+  /packingElements:
+    get:
+      operationId: findPackingElements
+      description: get available packing elements
+      responses:
+        "200":
+          description: todo
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/PackingElement"
+  /packingLayers:
+    get:
+      operationId: findPackingLayers
+      description: get packing layers
+      responses:
+        "200":
+          description: todo
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/PackingLayer"
   /meshparamdef:
     get:
-      operationId: getMeshParamDefByIdUser
+      operationId: getMyMeshParamDef
       responses:
         "200":
           description: get meshparamdef by iduser
           schema:
             $ref: "#/definitions/MeshParamDef"
+  /temprecordptsdef:
+    get:
+      operationId: getMyTempRecordPtsDef
+      responses:
+        "200":
+          description: get tempRecordPtsDef by iduser
+          schema:
+            $ref: "#/definitions/TempRecordPtsDef"
+  /calculationparametersdef:
+    get:
+      operationId: getMyCalculationParametersDef
+      responses:
+        "200":
+          description: get calculationParametersDef by iduser
+          schema:
+            $ref: "#/definitions/CalculationParametersDef"
+  /checkcontrolview:
+    get:
+      operationId: checkControlView
+      description: get array checkcontrol
+      parameters:
+      - name: idStudy
+        in: query
+        type: integer
+      - name: idProd
+        in: query
+        type: integer
+      responses:
+        "200":
+          description: todo
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/CheckControlView"
+  /checkcontrol:
+    get:
+      operationId: checkControl
+      description: get checkcontrol
+      parameters:
+      - name: idStudy
+        in: query
+        type: integer
+      - name: idProd
+        in: query
+        type: integer
+      responses:
+        "200":
+          description: todo
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/CheckControl"
+  /savemeshparamdef:
+    post:
+      consumes:
+        - application/x-www-form-urlencoded
+      operationId: saveMyMeshParamDef
+      description: save MeshParamDef
+      parameters:
+      - name: body
+        in: body
+        required: true
+        description: body save meshParamDef
+        schema:
+          $ref: "#/definitions/MeshParamDefSave"
+      responses:
+        "200":
+          description: ok
+        "422":
+          description: missing data
+  /savetemprecordptsdef:
+    post:
+      consumes:
+        - application/x-www-form-urlencoded
+      operationId: saveMyTempRecordPtsDef
+      description: save TempRecordPtsDef by id
+      parameters:
+        - name: body
+          in: body
+          required: true
+          description: body save TempRecordPtsDef
+          schema:
+            $ref: "#/definitions/TempRecordPtsDefSave"
+      responses:
+        "200":
+          description: ok
+        "422":
+          description: missing data
+  /savecalculationparametersdef:
+    post:
+      consumes:
+        - application/x-www-form-urlencoded
+      operationId: saveMyCalculationParametersDef
+      description: save CalculationParametersDef by id
+      parameters:
+        - name: body
+          in: body
+          required: true
+          description: body save CalculationParametersDef
+          schema:
+            $ref: "#/definitions/CalculationParametersDefSave"
+      responses:
+        "200":
+          description: ok
+        "422":
+          description: missing data
+  /optimumcalculator:
+    get:
+      operationId: getOptimumCalculator
+      description: get optimumcalculator
+      parameters:
+      - name: idStudy
+        in: query
+        type: integer
+      - name: idStudyEquipment
+        in: query
+        type: integer
+      responses:
+        "200":
+          description: todo
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/OptimumCalculator"
+  /studies/{id}/packingLayers:
+    get:
+      operationId: getStudyPackingLayers
+      description: get StudyPackingLayers
+      parameters:
+      - name: id
+        description: study id
+        type: integer
+        in: path
+        required: true
+      responses:
+        "200":
+          description: ToDo
+          schema:
+            $ref: "#/definitions/ViewPackingLayer"
+    post:
+      operationId: savePacking
+      description: save packing
+      parameters:
+      - name: id
+        description: study id
+        type: integer
+        in: path
+        required: true
+      - name: body
+        in: body
+        description: body
+        required: true
+        schema:
+          $ref: "#/definitions/SavePackingLayer"
+      responses:
+        "200":
+          description: ToDo
+  /symbol/{idStudy}:  
+    get:
+      operationId: getSymbol
+      description: get symbol study
+      parameters:
+      - name: idStudy
+        in: path
+        description: Study ID
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: todo
+          schema:
+            $ref:  "#/definitions/Symbol"  
+  /proInfoStudy/{idStudy}:  
+    get:
+      operationId: getProInfoStudy
+      description: get pro info study
+      parameters:
+      - name: idStudy
+        in: path
+        description: Study ID
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: todo
+          schema:
+            $ref: "#/definitions/OptimumResultAna" 
+  /optimum/headBalance/{idStudy}:
+    get:
+      operationId: getOptimumHeadBalance
+      description: get optimum head balance
+      parameters:
+      - name: idStudy
+        in: path
+        description: Study ID
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: todo
+          schema:
+            $ref: "#/definitions/HeadBalanceResult"
+  /optimum/headBalanceMax/{idStudy}:
+    get:
+      operationId: getOptimumHeadBalanceMax
+      description: get optimum head balance max
+      parameters:
+      - name: idStudy
+        in: path
+        description: get optimum head balance max results
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: todo
+          schema:
+            $ref:  "#/definitions/HeadBalanceMaxResult"
+  /optimum/equipSizing/{idStudyEquipment}:
+    get:
+      operationId: getEquipSizing
+      description: get equip sizing
+      parameters:
+      - name: idStudyEquipment
+        in: path
+        description: StudyEquipment ID
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: todo
+          schema:
+            $ref:  "#/definitions/EquipSizing"
+  /estimation/headBalance:
+    get:
+      operationId: getEstimationHeadBalance
+      description: get estimation head balance
+      parameters:
+      - name: idStudy
+        in: query
+        description: Study ID
+        required: true
+        type: integer
+      - name: tr
+        in: query
+        description: Control temperature
+        required: false
+        type: integer
+      responses:
+        "200":
+          description: todo
+          schema:
+            $ref:  "#/definitions/EstimationHeadBalanceResult"
+  /estimation/trCalculate/{idStudyEquipment}:
+    get:
+      operationId: temperatureCalculation
+      description: get temperature calculation data
+      parameters:
+      - name: idStudyEquipment
+        in: path
+        description: StudyEquipment ID
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: todo
+          schema:
+            $ref:  "#/definitions/ViewTrCalculate"
+  /estimation/viewEquipTr/{idStudyEquipment}:
+    get:
+      operationId: viewEquipTr
+      description: view Equipment Temperature
+      parameters:
+      - name: idStudyEquipment
+        in: path
+        description: StudyEquipment ID
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: todo
+          schema:
+            $ref:  "#/definitions/ViewEquipTr"
+  /common/consumption/{idStudy}:
+    get:
+      operationId: getAnalyticalConsumption
+      description: get consumption results
+      parameters:
+      - name: idStudy
+        in: path
+        description: Study ID
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: todo
+          schema:
+            $ref:  "#/definitions/ConsumptionResult"
+  /common/economic/{idStudy}:
+    get:
+      operationId: getAnalyticalEconomic
+      description: get economic results
+      parameters:
+      - name: idStudy
+        in: path
+        description: Study ID
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: todo
+          schema:
+            $ref:  "#/definitions/EconomicResult"
+  /output/sizingresult/{idStudy}/optimum:
+    get:
+      operationId: sizingOptimumResult
+      description: get sizng result optimum
+      parameters:
+      - name: idStudy
+        in: path
+        description: Study ID
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: todo
+          schema:
+            $ref: "#/definitions/ViewSizingResultOptimum"
+  /products/{id}/meshView:
+    get:
+      operationId: getMeshView
+      description: get mesh view of product
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: id of product
+          type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/ViewMesh"
 # complex objects have schema definitions
 definitions:
   Login: 
@@ -239,6 +881,129 @@ definitions:
       username: 
         type: string 
       password: 
+        type: string
+  ViewLogin:
+    type: object
+    properties:
+      token:
+        type: string
+      user:
+        $ref: "#/definitions/User"
+  ViewProduct:
+    type: object
+    properties:
+      product:
+        $ref: "#/definitions/Product"
+      elements:
+        type: array
+        items:
+          $ref: "#/definitions/ProductElmt"
+      specificDimension:
+        type: number
+  ViewSizingResultOptimum:
+    type: object
+    properties:
+      result:
+        $ref: "#/definitions/SizingResultOptimum"
+      selectedEquipment:
+        type: object
+      availableEquipment:
+        type: object
+      dataGrapChart:
+        type: object
+      dataTemProfileChart:
+        type: object
+  User:
+    type: object
+    properties:
+      ID_USER:
+        type: integer
+      ID_MONETARY_CURRENCY:
+        type: integer
+      CODE_LANGUE:
+        type: integer
+      ID_CALC_PARAMSDEF:
+        type: integer
+      ID_TEMP_RECORD_PTS_DEF:
+        type: integer
+      USERNAM:
+        type: string
+      USERPRIO:
+        type: integer
+      TRACE_LEVEL:
+        type: integer
+      USER_ENERGY:
+        type: integer
+      USER_CONSTRUCTOR:
+        type: string
+      USER_FAMILY:
+        type: integer
+      USER_ORIGINE:
+        type: integer
+      USER_PROCESS:
+        type: integer
+      USER_MODEL:
+        type: integer
+      USERMAIL:
+        type: string
+      API_TOKEN:
+        type: string
+  Component:
+    type: object 
+    properties:
+      ID_COMP:
+        type: integer
+  Shape:
+    type: object
+    properties:
+      ID_SHAPE:
+        type: integer
+      SHAPECODE:
+        type: integer
+      SHAPEPICT:
+        type: string
+      SYM_1:
+        type: integer
+      SYM_2:
+        type: integer
+      SYM_3:
+        type: integer
+      AXISYM_1:
+        type: integer
+      AXISYM_2:
+        type: integer
+      AXISYM_3:
+        type: integer
+  PackingElement:
+    type: object
+    properties:
+      ID_PACKING_ELMT:
+        type: integer
+  PackingLayer:
+    type: object
+    properties:
+      ID_PACKING_LAYER:
+        type: integer
+      ID_PACKING:
+        type: integer
+      ID_PACKING_ELMT:
+        type: integer
+      THICKNESS:
+        type: number
+      PACKING_SIDE_NUMBER:
+        type: integer
+      PACKING_LAYER_ORDER:
+        type: integer
+  Packing:
+    type: object
+    properties:
+      ID_PACKING:
+        type: integer
+      ID_SHAPE:
+        type: integer
+      ID_STUDY:
+        type: integer
+      NOMEMBMAT:
         type: string
   Study:
     type: object
@@ -297,6 +1062,8 @@ definitions:
         type: string
       TO_RECALCULATE:
         type: integer
+      USERNAM:
+        type: string
   Equipment:
     type: object
     properties:
@@ -329,5 +1096,926 @@ definitions:
         type: number
       APPROX_DWELLING_TIME:
         type: number
+  Product:
+    type: object
+    properties:
+      ID_PROD:
+        type: integer
+      ID_STUDY:
+        type: integer
+      ID_MESH_GENERATION:
+        type: integer
+      PRODNAME:
+        type: string
+      PROD_ISO:
+        type: integer
+      PROD_WEIGHT:
+        type: number
+      PROD_REALWEIGHT:
+        type: number
+      PROD_VOLUME:
+        type: number
+  ProductElmt:
+    type: object
+    properties:
+      ID_PRODUCT_ELMT:
+        type: integer
+      ID_PROD:
+        type: integer
+      ID_SHAPE:
+        type: integer
+      ID_COMP:
+        type: integer
+      PROD_ELMT_NAME:
+        type: string
+      SHAPE_PARAM1:
+        type: number
+      SHAPE_PARAM2:
+        type: number
+      SHAPE_PARAM3:
+        type: number
+      PROD_DEHYD:
+        type: number
+      PROD_DEHYD_COST:
+        type: number
+      SHAPE_POS1:
+        type: number
+      SHAPE_POS2:
+        type: number
+      SHAPE_POS3:
+        type: number
+      PROD_ELMT_ISO:
+        type: number
+      ORIGINAL_THICK:
+        type: number
+      NODE_DECIM:
+        type: number
+      INSERT_LINE_ORDER:
+        type: integer
+      PROD_ELMT_WEIGHT:
+        type: number
+      PROD_ELMT_REALWEIGHT:
+        type: number
+  StudyEquipment:
+    type: object
+    properties:
+      ID_STUDY_EQUIPMENTS:
+        type: integer
+      ID_STUDY:
+        type: integer
+      ID_EQUIP:
+        type: integer
+      ID_EXH_GEN:
+        type: integer
+      ID_EXH_RES:
+        type: integer
+      ID_PIPE_GEN:
+        type: integer
+      ID_PIPE_RES:
+        type: integer
+      ID_ECONOMIC_RESULTS:
+        type: integer
+      ID_STUD_EQUIPPROFILE:
+        type: integer
+      ID_LAYOUT_GENERATION:
+        type: integer
+      ID_LAYOUT_RESULTS:
+        type: integer
+      ID_CALC_PARAMS:
+        type: integer
+      LINE_ORDER:
+        type: integer
+      STDEQP_LENGTH:
+        type: number
+      STDEQP_WIDTH:
+        type: number
+      EQP_INST:
+        type: integer
+      AVERAGE_PRODUCT_TEMEQP_WIDTHP:
+        type: number
+      AVERAGE_PRODUCT_ENTHALPY:
+        type: number
+      ENTHALPY_VARIATION:
+        type: number
+      PRECIS:
+        type: number
+      NB_MODUL:
+        type: number
+      STACKING_WARNING:
+        type: number
+      ENABLE_CONS_PIE:
+        type: number
+      EQUIP_STATUS:
+        type: number
+      RUN_CALCULATE:
+        type: integer
+      BRAIN_SAVETODB:
+        type: number
+      BRAIN_TYPE:
+        type: number
+      ID_COOLING_FAMILY:
+        type: integer
+      EQUIP_NAME:
+        type: string
+      CAPABILITIES:
+        type: integer
+      MODUL_LENGTH:
+        type: number
+      EQP_LENGTH:
+        type: number
+      EQP_WIDTH:
+        type: number
+      EQUIP_VERSION:
+        type: number
+      STD:
+        type: integer
+      ITEM_TR:
+        type: number
+      SERIES_NAME:
+        type: string
+      BATCH_PROCESS:
+        type: integer
   MeshParamDef:
     type: object
+    properties:
+      ID_USER:  
+        type: integer
+      MESH_1_SIZE:  
+        type: number
+      MESH_2_SIZE:  
+        type: number
+      MESH_3_SIZE:  
+        type: number
+      MESH_RATIO:  
+        type: number
+  MeshParamDefSave:
+    type: object
+    properties:
+      dim1:
+        type: number
+      dim2:
+        type: number
+      dim3:
+        type: number
+  TempRecordPtsDef:
+    type: object
+    properties:
+      ID_TEMP_RECORD_PTS_DEF: 
+        type: integer
+      ID_USER: 
+        type: integer
+      AXIS1_PT_TOP_SURF_DEF: 
+        type: number
+      AXIS2_PT_TOP_SURF_DEF: 
+        type: number
+      AXIS3_PT_TOP_SURF_DEF: 
+        type: number
+      AXIS1_PT_INT_PT_DEF: 
+        type: number
+      AXIS2_PT_INT_PT_DEF: 
+        type: number
+      AXIS3_PT_INT_PT_DEF: 
+        type: number
+      AXIS1_PT_BOT_SURF_DEF: 
+        type: number
+      AXIS2_PT_BOT_SURF_DEF: 
+        type: number
+      AXIS3_PT_BOT_SURF_DEF: 
+        type: number
+      AXIS2_AX_1_DEF: 
+        type: number
+      AXIS3_AX_1_DEF: 
+        type: number
+      AXIS1_AX_2_DEF: 
+        type: number
+      AXIS3_AX_2_DEF: 
+        type: number
+      AXIS1_AX_3_DEF: 
+        type: number
+      AXIS2_AX_3_DEF: 
+        type: number
+      AXIS1_PL_2_3_DEF: 
+        type: number
+      AXIS2_PL_1_3_DEF: 
+        type: number
+      AXIS3_PL_1_2_DEF: 
+        type: number
+      NB_STEPS_DEF: 
+        type: number
+      CONTOUR2D_TEMP_MIN_DEF: 
+        type: number
+      CONTOUR2D_TEMP_MAX_DEF: 
+        type: number
+  TempRecordPtsDefSave:
+    type: object
+    properties:
+      axis1TopSurf:
+        type: number
+      axis2TopSurf:
+        type: number
+      axis3TopSurf:
+        type: number
+      axis1IntPt:
+        type: number
+      axis2IntPt:
+        type: number
+      axis3IntPt:
+        type: number
+      axis1BotSurf:
+        type: number
+      axis2BotSurf:
+        type: number
+      axis3BotSurf:
+        type: number
+      axis2PL13:
+        type: number
+      axis3PL12:
+        type: number
+      axis1PL23:
+        type: number
+      axis2Axe1:
+        type: number
+      axis3Axe1:
+        type: number
+      axis1Axe2:
+        type: number
+      axis3Axe2:
+        type: number
+      axis1Axe3:
+        type: number
+      axis2Axe3:
+        type: number
+  CalculationParametersDef:
+    type: object
+    properties:
+      ID_CALC_PARAMSDEF: 
+        type: integer
+      ID_USER: 
+        type: integer
+      HORIZ_SCAN_DEF: 
+        type: integer
+      VERT_SCAN_DEF: 
+        type: integer
+      MAX_IT_NB_DEF: 
+        type: number
+      TIME_STEPS_NB_DEF: 
+        type: number
+      RELAX_COEFF_DEF: 
+        type: number
+      TIME_STEP_DEF: 
+        type: number
+      STORAGE_STEP_DEF: 
+        type: number
+      PRECISION_LOG_STEP_DEF: 
+        type: number
+      STOP_TOP_SURF_DEF: 
+        type: number
+      STOP_INT_DEF: 
+        type: number
+      STOP_BOTTOM_SURF_DEF: 
+        type: number
+      STOP_AVG_DEF: 
+        type: number
+      STUDY_ALPHA_TOP_FIXED_DEF:
+        type: number
+      STUDY_ALPHA_TOP_DEF:
+        type: number
+      STUDY_ALPHA_BOTTOM_FIXED_DEF:
+        type: number
+      STUDY_ALPHA_BOTTOM_DEF:
+        type: number
+      STUDY_ALPHA_LEFT_FIXED_DEF:
+        type: number
+      STUDY_ALPHA_LEFT_DEF:
+        type: number
+      STUDY_ALPHA_RIGHT_FIXED_DEF:
+        type: number
+      STUDY_ALPHA_RIGHT_DEF:
+        type: number
+      STUDY_ALPHA_FRONT_FIXED_DEF: 
+        type: number
+      STUDY_ALPHA_FRONT_DEF: 
+        type: number
+      STUDY_ALPHA_REAR_FIXED_DEF: 
+        type: number
+      STUDY_ALPHA_REAR_DEF: 
+        type: number
+      PRECISION_REQUEST_DEF: 
+        type: number
+  CalculationParametersDefSave:
+    type: object
+    properties:
+      ishorizScanDef:
+        type: number
+      isVertScanDef:
+        type: number
+      maxIter:
+        type: number
+      relaxCoef:
+        type: number
+      precision:
+        type: number
+      stopTopSurfDef:
+        type: number
+      stopIntDef:
+        type: number
+      stopBottomSurfDef:
+        type: number
+      stopAvgDef:
+        type: number
+      isStudyAlphaTopFixedDef:
+        type: number
+      isStudyAlphaBottomFixedDef:
+        type: number
+      isStudyAlphaLeftFixedDef:
+        type: number
+      isStudyAlphaRightFixedDef:
+        type: number
+      isStudyAlphaFrontFixedDef:
+        type: number
+      isStudyAlphaRearFixedDef:
+        type: number
+      studyAlphaTopDef:
+        type: number
+      studyAlphaBottomDef:
+        type: number
+      studyAlphaLeftDef:
+        type: number
+      studyAlphaRightDef:
+        type: number
+      studyAlphaFrontDef:
+        type: number
+      studyAlphaRearDef:
+        type: number
+      storageStepDef:
+        type: number
+      precisionLogStepDef:
+        type: number
+      timeStepDef:
+        type: number
+  Translation:
+    type: object
+    properties:
+      CODE_LANGUE:
+        type: integer
+      ID_TRANSLATION:
+        type: integer
+      TRANS_TYPE:
+        type: integer
+      LABEL:
+        type: string
+  CheckControlView:
+    type: object
+    properties:
+      definition:
+        type: boolean
+      production:
+        type: boolean
+      mesh:
+        type: boolean
+      packing:
+        type: boolean
+      equipment:
+        type: boolean
+      pipeenable:
+        type: boolean
+      pipeline:
+        type: boolean
+  CheckControl:
+    type: object
+    properties:
+      checkcontrol:
+        type: boolean
+  OptimumCalculator:
+    type: object
+    properties:
+      sdisableFields:
+        type: number
+      sdisableCalculate:
+        type: number
+      scheckOptim:
+        type: number
+      sdisableOptim:
+        type: number
+      sdisableNbOptim:
+        type: number
+      epsilonTemp:
+        type: number
+      epsilonEnth:
+        type: number
+      nbOptimIter:
+        type: number
+      sdisableTimeStep:
+        type: number
+      sdisablePrecision:
+        type: number
+      sdisableStorage:
+        type: number
+      timeStep:
+        type: number
+      precision:
+        type: number
+      scheckStorage:
+        type: number
+      storagestep:
+        type: number
+      hRadioOn:
+        type: number
+      hRadioOff:
+        type: number
+      maxIter:
+        type: number
+      relaxCoef:
+        type: number
+      vRadioOn:
+        type: number
+      vRadioOff:
+        type: number
+      tempPtSurf:
+        type: number
+      tempPtIn:
+        type: number
+      tempPtBot:
+        type: number
+      tempPtAvg:
+        type: number
+      isBrainCalculator:
+        type: number
+      select1:
+        type: array
+        items:
+          $ref: "#/definitions/ViewSelect"
+      select2:
+        type: array
+        items:
+          $ref: "#/definitions/ViewSelect"
+      select3:
+        type: array
+        items:
+          $ref: "#/definitions/ViewSelect"
+      select4:
+        type: array
+        items:
+          $ref: "#/definitions/ViewSelect"
+      select5:
+        type: array
+        items:
+          $ref: "#/definitions/ViewSelect"
+      select6:
+        type: array
+        items:
+          $ref: "#/definitions/ViewSelect"
+      select7:
+        type: array
+        items:
+          $ref: "#/definitions/ViewSelect"
+      select8:
+        type: array
+        items:
+          $ref: "#/definitions/ViewSelect"
+      select9:
+        type: array
+        items:
+          $ref: "#/definitions/ViewSelect"
+  ViewSelect:
+    type: object
+    properties:
+      selected: 
+        type: number
+      value:
+        type: number
+      label:
+        type: number
+  Symbol:
+    type: object
+    properties:
+      productFlowSymbol:
+          type: string
+      massSymbol:
+        type: string
+      temperatureSymbol:
+        type: string
+      percentSymbol:
+        type: string
+      timeSymbol:
+        type: string
+      perUnitOfMassSymbol:
+        type: string
+      enthalpySymbol:
+        type: string
+      monetarySymbol:
+        type: string
+      equipDimensionSymbol:
+        type: string
+      convectionSpeedSymbol:
+        type: string
+      consumSymbol:
+        type: string
+      consumMaintienSymbol:
+        type: string
+      mefSymbol:
+        type: string
+  OptimumResultAna:
+    type: object
+    properties:
+      prodFlowRate:
+        type: number
+      prodElmtRealweight:
+        type: number
+      avgTInitial:
+        type: number
+  HeadBalanceResult:
+    type: object
+    properties:
+      id:
+        type: integer
+      specificSize:
+        type: string
+      equipName:
+        type: string
+      runBrainPopup:
+        type: boolean
+      calculWarning:
+        type: number
+      calculate:
+        type: "string"
+      tr:
+        type: number
+      ts:
+        type: number
+      vc:
+        type: number
+      vep:
+        type: number
+      tfp:
+        type: number
+      dhp:
+        type: number
+      conso:
+        type: string
+      toc:
+        type: string
+      precision:
+        type: number
+  HeadBalanceMaxResult:
+    type: object
+    properties:
+      id:
+        type: integer
+      specificSize:
+        type: string
+      equipName:
+        type: string
+      calculWarning:
+        type: number
+      tr:
+        type: number
+      ts:
+        type: number
+      vc:
+        type: number
+      vep:
+        type: number
+      tfp:
+        type: number
+      dhp:
+        type: number
+      conso:
+        type: string
+      toc:
+        type: string
+      precision:
+        type: number
+  EstimationHeadBalanceResult:
+    type: object
+    properties:
+      id:
+        type: integer
+      specificSize:
+        type: string
+      equipName:
+        type: string
+      tr:
+        type: number
+      ts:
+        type: number
+      vc:
+        type: number
+      vep:
+        type: number
+      tfp:
+        type: number
+      dhp:
+        type: number
+      conso:
+        type: number
+      toc:
+        type: string
+      consoMax:
+        type: number
+      tocMax:
+        type: string
+      precision:
+        type: number
+  ConsumptionResult:
+    type: object
+    properties:
+      id:
+        type: integer
+      equipName:
+        type: string
+      tc:
+        type: number
+      kgProduct:
+        type: number
+      product:
+        type: number
+      day: 
+        type: integer
+      week:
+        type: integer 
+      hour: 
+        type: number
+      month:
+        type: integer
+      year: 
+        type: integer
+      eqptPerm:
+        type: number
+      eqptCold: 
+        type: number
+      lineCold:
+        type: number
+      linePerm:
+        type: number
+      tank:
+        type: number
+      percentProduct:
+        type: integer
+      percentEquipmentPerm:
+        type: integer
+      percentEquipmentDown:
+        type: integer
+      percentLine:
+        type: integer
+  EconomicResult:
+    type: object
+    properties:
+      id:
+        type: integer
+      equipName:
+        type: string
+      tc:
+        type: number
+      kgProduct:
+        type: number
+      product:
+        type: number
+      day: 
+        type: integer
+      week:
+        type: integer 
+      month:
+        type: integer
+      year: 
+        type: integer
+      eqptPerm:
+        type: number
+      eqptCold: 
+        type: number
+      lineCold:
+        type: number
+      linePerm:
+        type: number
+      tank:
+        type: number
+  EquipSizing:
+    type: object
+    properties:
+      idStudyEquipment:
+        type: integer
+      equipName: 
+        type: string
+      minWidth:
+        type: number
+      maxWidth:
+        type: number
+      minLength:
+        type: number
+      maxLength:
+        type: number
+      minSurf:
+        type: number
+      maxSurf:
+        type: number      
+  StudEqpPrm:
+    type: object
+    properties:
+      ID_STUD_EQP_PRM: 
+        type: integer
+      ID_STUDY_EQUIPMENTS:
+        type: integer
+      VALUE_TYPE:
+        type: number
+      VALUE:
+        type: number
+  DimaResults:
+    type: object
+    properties:
+      ID_DIMA_RESULTS: 
+        type: integer
+      ID_STUDY_EQUIPMENTS:  
+        type: integer
+      SETPOINT:  
+        type: number
+      DIMA_STATUS: 
+        type: integer
+      DIMA_TS:  
+        type: number
+      DIMA_TFP:  
+        type: number
+      DIMA_VEP:  
+        type: number
+      DIMA_VC:  
+        type: number
+      DIMA_TYPE:  
+        type: integer
+      DIMA_PRECIS:  
+        type: number
+      CRYOCONSPROD:  
+        type: number
+      HOURLYOUTPUTMAX:  
+        type: number
+      CONSUM:  
+        type: number
+      USERATE:  
+        type: number
+      CONSUMMAX:  
+        type: number
+      USERATEMAX:  
+        type: number
+  ViewEquipTr:
+    type: object
+    properties:
+      equipName:
+        type: string
+      dimaResult:
+        $ref: "#/definitions/DimaResults"
+  ViewTrCalculate:
+    type: object
+    properties:
+      idStudyEquipment:  
+        type: integer
+      equipName:  
+        type: string
+      trPrm: 
+        $ref: "#/definitions/StudEqpPrm"
+      tsPrm: 
+        $ref: "#/definitions/StudEqpPrm"
+      vcPrm:
+        $ref: "#/definitions/StudEqpPrm"
+      tePrm: 
+        $ref: "#/definitions/StudEqpPrm"
+      ldSetpointmax: 
+        type: integer
+      trMin:
+        type: number
+      trMax:
+        type: number
+      tsMin:
+        type: number
+      tsMax:
+        type: number
+      disabled:
+        type: string
+  ViewPackingLayer:
+    type: object
+    properties:
+      packing:
+        $ref: "#/definitions/Packing"
+      packingLayers:
+        type: array
+        items:
+          $ref: "#/definitions/PackingLayer"
+  SavePackingLayer:
+    type: object
+    properties:
+      packing:
+        $ref: "#/definitions/Packing"
+      packingLayers:
+        type: array
+        items:
+          properties:
+            ID_PACKING_ELMT:
+              type: integer
+            PACKING_SIDE_NUMBER:
+              type: integer
+            PACKING_LAYER_ORDER:
+              type: integer
+            THICKNESS:
+              type: number
+  ViewMesh:
+    type: object
+    properties:
+      meshGeneration:
+        $ref: "#/definitions/MeshGeneration"
+      elements:
+        type: array
+        items:
+          $ref: "#/definitions/ProductElmt"
+      elmtMeshPositions:
+        type: array
+        items:
+          $ref: "#/definitions/MeshPosition"
+  MeshGeneration:
+    type: object
+    properties:
+      ID_MESH_GENERATION:
+        type: integer
+      ID_PROD:
+        type: integer
+      MESH_1_FIXED:
+        type: number
+      MESH_2_FIXED:
+        type: number
+      MESH_3_FIXED:
+        type: number
+      MESH_1_MODE:
+        type: integer
+      MESH_2_MODE:
+        type: integer
+      MESH_3_MODE:
+        type: integer
+      MESH_1_NB:
+        type: integer
+      MESH_2_NB:
+        type: integer
+      MESH_3_NB:
+        type: integer
+      MESH_1_SIZE:
+        type: number
+      MESH_2_SIZE:
+        type: number
+      MESH_3_SIZE:
+        type: number
+      MESH_1_INT:
+        type: number
+      MESH_2_INT:
+        type: number
+      MESH_3_INT:
+        type: number
+      MESH_1_RATIO:
+        type: number
+      MESH_2_RATIO:
+        type: number
+      MESH_3_RATIO:
+        type: number
+      BEST_1_NB:
+        type: integer
+      BEST_2_NB:
+        type: integer
+      BEST_3_NB:
+        type: integer
+  MeshPosition:
+    type: object
+    properties:
+      ID_MESH_POSITION:
+        type: integer
+      ID_PRODUCT_ELMT:
+        type: integer
+      MESH_AXIS:
+        type: number
+      MESH_ORDER:
+        type: integer
+      MESH_AXIS_POS:
+        type: number
+  SizingResultOptimum:
+    type: object
+    properties:
+      ts:
+        type: number
+      tr: 
+        type: number
+      vc: 
+        type: number
+      dhp: 
+        type: number
+      conso: 
+        type: string
+      toc: 
+        type: number
+      tsMax:
+        type: number
+      trMax: 
+        type: number
+      vcMax: 
+        type: number
+      dhpMax: 
+        type: number
+      consoMax: 
+        type: string
+      tocMax: 
+        type: number
+      
+
+
